@@ -1,4 +1,8 @@
+const http = require('http');
+http.createServer((req, res) => res.end('Elysia esta viva')).listen(process.env.PORT || 10000);
+
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -17,43 +21,48 @@ const client = new Client({
     }
 });
 
-let yaPidio = false;
+client.on('qr', (qr) => {
+    console.log('ESCANEA ESTE QR:');
+    qrcode.generate(qr, { small: true });
+});
 
 client.on('ready', () => {
-    console.log('¡Elysia lista! Ya puede contestar');
-    yaPidio = true;
+    console.log('Elysia esta lista!');
 });
 
 client.on('authenticated', () => {
-    console.log('¡Elysia autenticada!');
-    yaPidio = true;
+    console.log('Elysia autenticada!');
 });
 
 client.on('auth_failure', (msg) => {
-    console.log('Fallo de autenticacion:', msg);
+    console.log('Fallo auth:', msg);
 });
 
 client.on('message', async (msg) => {
-    console.log('Mensaje recibido:', msg.body);
-    const texto = msg.body.toLowerCase();
-    if (texto === 'hola') {
-        msg.reply('Holaa, soy Elysia ✨ ¿En qué te ayudo?');
+    try {
+        if (msg.from === 'status@broadcast') return;
+        const texto = msg.body.toLowerCase();
+
+        if (texto === 'hola' || texto === 'ola' || texto === 'hi') {
+            await msg.reply('Holaa, soy Elysia 💜 ¿Cómo estás?');
+            return;
+        }
+
+        if (texto.includes('como estas')) {
+            await msg.reply('Bien, ¿y tú? Aquí ando contigo 💜');
+            return;
+        }
+
+        // Aquí puedes agregar más respuestas después
+
+    } catch (e) {
+        console.log('Error en mensaje:', e.message);
     }
 });
 
-client.initialize();
-
-// Esperamos 30 segundos para que Chrome abra bien antes de pedir codigo
-setTimeout(async () => {
-    if (yaPidio) {
-        console.log('Ya esta vinculada, no pido codigo');
-        return;
-    }
-    try {
-        console.log('Pidiendo codigo de vinculacion, espera...');
-        const codigo = await client.requestPairingCode('5659447514');
-        console.log('TU CODIGO DE ELYSIA ES:', codigo);
-    } catch (e) {
-        console.log('Ya esta vinculada o fallo:', e.message);
-    }
+// Para que no se duerma y no se llene la memoria
+setInterval(() => {
+    console.log('Elysia sigue viva... ' + new Date().toLocaleString());
 }, 30000);
+
+client.initialize();
