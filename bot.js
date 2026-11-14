@@ -7,7 +7,7 @@ http.createServer((req, res) => {
   res.end('ELYSIA esta activa');
 }).listen(process.env.PORT || 10000);
 
-const PHONE_NUMBER = '525659447514';
+const PHONE_NUMBER = '5215659447514';
 
 const client = new Client({
   authStrategy: new LocalAuth(),
