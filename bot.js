@@ -1,10 +1,12 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const puppeteer = require('puppeteer');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
+        executablePath: puppeteer.executablePath(),
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-accelerated-2d-canvas', '--no-first-run', '--no-zygote', '--disable-gpu']
     }
 });
@@ -23,7 +25,7 @@ client.on('message', async (msg) => {
     if (text === 'hola' || text === 'hi' || text === 'hola elysia') {
         msg.reply('Holaa 💕 Soy ELYSIA, tu asistente. ¿En qué te ayudo hoy? Escribe *menu* para ver lo que puedo hacer.');
     } else if (text === 'menu') {
-        msg.reply('✨ *MENÚ ELYSIA* ✨\n\n1. Escribe *hola* para saludarme\n2. Escribe *chiste* para un chiste\n3. Escribe *hora* para saber la hora\n\n¿Qué quieres hacer?');
+        msg.reply('✨ *MENÚ ELYSIA* ✨\n\n1. Escribe *hola* para saludarme\n2. Escribe *chiste* para un chiste\n3. Escribe *hora* para saber la hora');
     } else if (text === 'chiste') {
         msg.reply('¿Por qué el libro de matemáticas estaba triste? Porque tenía muchos problemas 😂');
     } else if (text === 'hora') {
