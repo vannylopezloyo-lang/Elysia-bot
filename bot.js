@@ -26,7 +26,7 @@ client.on('qr', async (qr) => {
       console.log('TU CODIGO DE ELYSIA ES: ' + code);
       break;
     } catch (e) {
-      console.log('Intento ' + i + ' fallo: ' + e.message);
+    console.log('Intento ' + i + ' fallo COMPLETO: ' + JSON.stringify(e));
       await new Promise(r => setTimeout(r, 5000));
     }
   }
