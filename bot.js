@@ -17,6 +17,7 @@ const client = new Client({
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
   }
 });
+
 client.on('qr', async (qr) => {
   console.log('Pidiendo codigo de vinculacion...');
   for (let i = 1; i <= 5; i++) {
@@ -33,7 +34,6 @@ client.on('qr', async (qr) => {
 
 client.on('code', (code) => {
   console.log('TU CODIGO DE ELYSIA ES: ' + code);
-});
 });
 
 client.on('authenticated', () => {
