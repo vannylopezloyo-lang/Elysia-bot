@@ -1,7 +1,11 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const puppeteer = require('puppeteer');
-
+const http = require('http');
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('ELYSIA esta activa');
+}).listen(process.env.PORT || 10000);
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
