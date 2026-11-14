@@ -1,52 +1,62 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const puppeteer = require('puppeteer');
-const http = require('http');
-
-http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('ELYSIA esta activa');
-}).listen(process.env.PORT || 10000);
-
-const PHONE_NUMBER = '5215659447514';
+const qrcode = require('qrcode-terminal');
 
 const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: {
-    headless: true,
-    executablePath: puppeteer.executablePath(),
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
-  }
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    },
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+    }
 });
 
-client.on('qr', async (qr) => {
-  console.log('Pidiendo codigo de vinculacion, espera...');
-  await new Promise(r => setTimeout(r, 10000));
-  try {
-    const code = await client.requestPairingCode(PHONE_NUMBER);
-    console.log('TU CODIGO DE ELYSIA ES: ' + code);
-  } catch (e) {
-    console.log('Fallo: ' + e.message);
-  }
+let yaPidioCodigo = false;
+
+client.on('qr', (qr) => {
+    console.log('Escanea este QR');
+    qrcode.generate(qr, { small: true });
 });
 
-client.on('authenticated', () => {
-  console.log('AUTENTICADO! Ya esta vinculado, cargando chats...');
-});
-
-client.on('auth_failure', (msg) => {
-  console.log('FALLO DE AUTENTICACION: ' + msg);
+client.on('code', (code) => {
+    console.log('TU CODIGO DE ELYSIA ES:', code);
 });
 
 client.on('ready', () => {
-  console.log('ELYSIA esta lista!');
+    console.log('¡Elysia lista! Ya puede contestar');
+});
+
+client.on('authenticated', () => {
+    console.log('¡Elysia autenticada!');
+});
+
+client.on('auth_failure', (msg) => {
+    console.log('Fallo de autenticacion:', msg);
 });
 
 client.on('message', async (msg) => {
-  console.log('Mensaje recibido de ' + msg.from + ': ' + msg.body);
-  if (msg.body.toLowerCase().trim() === 'hola') {
-    await msg.reply('Hola! Soy Elysia, ya estoy conectada 💜');
-    console.log('Respondi hola');
-  }
+    console.log('Mensaje recibido:', msg.body);
+    const texto = msg.body.toLowerCase();
+
+    if (texto === 'hola') {
+        msg.reply('Holaa, soy Elysia ✨ ¿En qué te ayudo?');
+    }
 });
 
-client.initialize();
+client.initialize().then(async () => {
+    // Solo pide codigo si NO esta autenticada
+    setTimeout(async () => {
+        if (!yaPidioCodigo) {
+            yaPidioCodigo = true;
+            try {
+                console.log('Pidiendo codigo de vinculacion, espera...');
+                const codigo = await client.requestPairingCode('5659447514');
+                console.log('TU CODIGO DE ELYSIA ES:', codigo);
+            } catch (e) {
+                console.log('Ya esta vinculada o fallo:', e.message);
+            }
+        }
+    }, 10000);
+});
