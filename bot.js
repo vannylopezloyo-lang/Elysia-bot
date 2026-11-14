@@ -27,10 +27,17 @@ client.on('qr', async (qr) => {
   try {
     const code = await client.requestPairingCode(PHONE_NUMBER);
     console.log('TU CODIGO DE ELYSIA ES: ' + code);
-    console.log('Escribelo en WhatsApp > Dispositivos vinculados > Vincular con numero');
   } catch (e) {
     console.log('Error pidiendo codigo: ' + e.message);
   }
+});
+
+client.on('authenticated', () => {
+  console.log('AUTENTICADO! Ya esta vinculado, cargando chats...');
+});
+
+client.on('auth_failure', (msg) => {
+  console.log('FALLO DE AUTENTICACION: ' + msg);
 });
 
 client.on('ready', () => {
@@ -38,8 +45,10 @@ client.on('ready', () => {
 });
 
 client.on('message', async (msg) => {
-  if (msg.body.toLowerCase() === 'hola') {
-    msg.reply('Hola! Soy Elysia, ya estoy conectada 💜');
+  console.log('Mensaje recibido de ' + msg.from + ': ' + msg.body);
+  if (msg.body.toLowerCase().trim() === 'hola') {
+    await msg.reply('Hola! Soy Elysia, ya estoy conectada 💜');
+    console.log('Respondi hola');
   }
 });
 
