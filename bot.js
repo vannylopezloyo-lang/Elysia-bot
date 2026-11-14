@@ -17,19 +17,23 @@ const client = new Client({
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
   }
 });
-
-let codigoPedido = false;
-
 client.on('qr', async (qr) => {
-  if (codigoPedido) return;
-  codigoPedido = true;
   console.log('Pidiendo codigo de vinculacion...');
-  try {
-    const code = await client.requestPairingCode(PHONE_NUMBER);
-    console.log('TU CODIGO DE ELYSIA ES: ' + code);
-  } catch (e) {
-    console.log('Error pidiendo codigo: ' + e.message);
+  for (let i = 1; i <= 5; i++) {
+    try {
+      const code = await client.requestPairingCode(PHONE_NUMBER);
+      console.log('TU CODIGO DE ELYSIA ES: ' + code);
+      break;
+    } catch (e) {
+      console.log('Intento ' + i + ' fallo: ' + e.message);
+      await new Promise(r => setTimeout(r, 5000));
+    }
   }
+});
+
+client.on('code', (code) => {
+  console.log('TU CODIGO DE ELYSIA ES: ' + code);
+});
 });
 
 client.on('authenticated', () => {
