@@ -19,21 +19,14 @@ const client = new Client({
 });
 
 client.on('qr', async (qr) => {
-  console.log('Pidiendo codigo de vinculacion...');
-  for (let i = 1; i <= 5; i++) {
-    try {
-      const code = await client.requestPairingCode(PHONE_NUMBER);
-      console.log('TU CODIGO DE ELYSIA ES: ' + code);
-      break;
-    } catch (e) {
-    console.log('Intento ' + i + ' fallo COMPLETO: ' + JSON.stringify(e));
-      await new Promise(r => setTimeout(r, 5000));
-    }
+  console.log('Pidiendo codigo de vinculacion, espera...');
+  await new Promise(r => setTimeout(r, 10000));
+  try {
+    const code = await client.requestPairingCode(PHONE_NUMBER);
+    console.log('TU CODIGO DE ELYSIA ES: ' + code);
+  } catch (e) {
+    console.log('Fallo: ' + e.message);
   }
-});
-
-client.on('code', (code) => {
-  console.log('TU CODIGO DE ELYSIA ES: ' + code);
 });
 
 client.on('authenticated', () => {
